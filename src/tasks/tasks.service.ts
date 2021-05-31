@@ -11,9 +11,10 @@ export const findAll = async (): Promise<Task[]> => Object.values(tasks);
 
 export const find = async (id: number): Promise<Task> => tasks[id];
 
+export const taskDatabaseSize = 3;
 let count = 0;
 export const create = async (newTask: BaseTask): Promise<Task> => {
-    if (count >= 100) return (await findAll())[0];
+    if (count >= taskDatabaseSize) throw new Error('task data base size exceeded');
     const id = new Date().valueOf() + count++;
 
     tasks[id] = {

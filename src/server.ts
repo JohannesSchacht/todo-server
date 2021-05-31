@@ -16,14 +16,12 @@ dotenv.config();
 /**
  * App Variables
  */
-
 if (!process.env.PORT) {
     process.exit(1);
 }
-
-const PORT: number = parseInt(process.env.PORT as string, 10);
-
-const app = express();
+export const HOSTNAME = process.env.SERVER_HOSTNAME || 'localhost';
+export const PORT: number = parseInt(process.env.PORT as string, 10);
+export const app = express();
 
 /**
  *  App Configuration
@@ -36,14 +34,3 @@ app.use('/api/todo/tasks', tasksRouter);
 
 app.use(errorHandler);
 app.use(notFoundHandler);
-
-/**
- * Server Activation
- */
-export const startServer = () => {
-    app.listen(PORT, () => {
-        console.log(`Listening on port ${PORT}`);
-    });
-};
-
-// export default startServer;

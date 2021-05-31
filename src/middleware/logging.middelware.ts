@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 
-const NAMESPACE = 'xxx';
+export const setNamespace = (n: string) => (NAMESPACE = n);
+
+let NAMESPACE = '???';
 
 export const loggingHandler = (request: Request, response: Response, next: NextFunction) => {
     info(

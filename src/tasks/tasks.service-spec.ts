@@ -1,6 +1,5 @@
-import { find, findAll, create, update, remove, clear } from './tasks.service';
-import { BaseTask, Task } from './task.interface';
-import { Tasks } from './tasks.interface';
+import { find, findAll, create, update, remove, clear, taskDatabaseSize } from './tasks.service';
+import { Task } from './task.interface';
 
 describe('typeCast:', () => {
     const testTask = {
@@ -19,7 +18,7 @@ describe('typeCast:', () => {
         expect(tasks.length).toBe(0);
     });
 
-    it('push one task works', async () => {
+    it('ensure pushing one task works', async () => {
         const task: Task = await create(testTask);
         // @ts-expect-error
         delete task.id;
@@ -31,11 +30,17 @@ describe('typeCast:', () => {
         expect((await findAll()).length).toBe(2);
     });
 
-    const maxTask = 100;
-    it(`expect ${maxTask} tasks to be the limit`, async () => {
-        const promises = [];
-        for (let i = 0; i < 110; i++) promises.push(create(testTask));
-        expect((await findAll()).length).toBe(maxTask);
+    it(`expect ${taskDatabaseSize} tasks to be the limit`, async () => {
+        clear();
+        for (let i = 0; i < taskDatabaseSize; i++) await create(testTask);
+        let err = false;
+        try {
+            await create(testTask);
+        } catch {
+            err = true;
+        }
+        expect(err).toBeTrue();
+        expect((await findAll()).length).toBe(taskDatabaseSize);
     });
 
     it('find and update a task', async () => {
