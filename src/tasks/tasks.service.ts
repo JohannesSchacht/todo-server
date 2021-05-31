@@ -11,8 +11,10 @@ export const findAll = async (): Promise<Task[]> => Object.values(tasks);
 
 export const find = async (id: number): Promise<Task> => tasks[id];
 
+let count = 0;
 export const create = async (newTask: BaseTask): Promise<Task> => {
-    const id = new Date().valueOf();
+    if (count >= 100) return (await findAll())[0];
+    const id = new Date().valueOf() + count++;
 
     tasks[id] = {
         id,
@@ -40,8 +42,10 @@ export const remove = async (id: number): Promise<null | void> => {
         return null;
     }
     delete tasks[id];
+    count--;
 };
 
 export const clear = async () => {
     tasks = {};
+    count = 0;
 };

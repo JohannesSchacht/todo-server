@@ -1,5 +1,6 @@
 import { find, findAll, create, update, remove, clear } from './tasks.service';
 import { BaseTask, Task } from './task.interface';
+import { Tasks } from './tasks.interface';
 
 describe('typeCast:', () => {
     const testTask = {
@@ -23,6 +24,44 @@ describe('typeCast:', () => {
         // @ts-expect-error
         delete task.id;
         expect(JSON.stringify(task)).toBe(JSON.stringify(testTask));
+    });
+
+    it('push ontoher task and have two', async () => {
+        await create(testTask);
+        expect((await findAll()).length).toBe(2);
+    });
+
+    const maxTask = 100;
+    it(`expect ${maxTask} tasks to be the limit`, async () => {
+        const promises = [];
+        for (let i = 0; i < 110; i++) promises.push(create(testTask));
+        expect((await findAll()).length).toBe(maxTask);
+    });
+
+    it('find and update a task', async () => {
+        const allTasks: Task[] = await findAll();
+        expect(JSON.stringify(allTasks[0]) === JSON.stringify(allTasks[1])).toBeFalse();
+        let task = allTasks[1];
+        let id = task.id;
+        expect(JSON.stringify(task) === JSON.stringify(allTasks[1])).toBeTrue();
+        task = await find(id);
+        expect(JSON.stringify(task) === JSON.stringify(allTasks[1])).toBeTrue();
+        task.name = 'Some other name';
+        // @ts-expect-error
+        delete task.id;
+        update(id, task);
+        task.id = id;
+        let task1: Task = await find(id);
+        expect(JSON.stringify(task) === JSON.stringify(task1)).toBeTrue();
+    });
+
+    it('delete and clear', async () => {
+        let cnt: number = (await findAll()).length;
+        let anId: number = (await findAll())[1].id;
+        await remove(anId);
+        expect((await findAll()).length).toBe(cnt - 1);
+        await clear();
+        expect((await findAll()).length).toBe(0);
     });
 });
 
