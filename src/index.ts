@@ -5,4 +5,4 @@ import http from 'http';
 setNamespace('server');
 
 const httpServer = http.createServer(app);
-httpServer.listen(PORT, HOSTNAME, () => console.log(`Server is running ${HOSTNAME}:${PORT}`));
+httpServer.listen(PORT, () => console.log(`Server is running ${HOSTNAME}:${PORT}`));
