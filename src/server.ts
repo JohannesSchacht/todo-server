@@ -17,9 +17,10 @@ dotenv.config();
  * App Variables
  */
 if (!process.env.PORT) {
+    console.log('No port specified');
     process.exit(1);
 }
-export const HOSTNAME = process.env.SERVER_HOSTNAME || 'localhost';
+export const HOSTNAME = process.env.HOSTNAME || 'localhost';
 export const PORT: number = parseInt(process.env.PORT as string, 10);
 export const app = express();
 
