@@ -63,7 +63,9 @@ describe('todo list: tasks', () => {
 
     it('Post illegal data', async () => {
         let response = await instancePost(instance, '/tasks', { illegal: 42 });
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
+        response = await instancePost(instance, '/tasks', { dueDate: 'not a date' });
+        expect(response.status).toBe(400);
     });
 });
 

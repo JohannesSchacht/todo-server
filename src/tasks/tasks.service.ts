@@ -17,12 +17,16 @@ export const create = async (newTask: BaseTask): Promise<Task> => {
     if (count >= taskDatabaseSize) throw new Error('task data base size exceeded');
     const id = new Date().valueOf() + count++;
 
-    tasks[id] = {
-        id,
-        ...(typeCast(getDefaultTask(), newTask, {
-            dueDate: typeCastConverter_Date
-        }) as BaseTask)
-    };
+    try {
+        tasks[id] = {
+            id,
+            ...(typeCast(getDefaultTask(), newTask, {
+                dueDate: typeCastConverter_Date
+            }) as BaseTask)
+        };
+    } catch (e) {
+        throw new TypeError(e.message);
+    }
     return tasks[id];
 };
 
