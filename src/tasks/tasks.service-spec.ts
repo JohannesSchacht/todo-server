@@ -1,5 +1,5 @@
 import { find, findAll, create, update, remove, clear, taskDatabaseSize } from './tasks.service';
-import { Task } from './task.interface';
+import { Task, roundSeconds } from './task.interface';
 
 describe('typeCast:', () => {
     const testTask = {
@@ -18,14 +18,14 @@ describe('typeCast:', () => {
         expect(tasks.length).toBe(0);
     });
 
-    it('ensure pushing one task works', async () => {
+    it('ensure creating one task works', async () => {
         const task: Task = await create(testTask);
         // @ts-expect-error
         delete task.id;
         expect(JSON.stringify(task)).toBe(JSON.stringify(testTask));
     });
 
-    it('push ontoher task and have two', async () => {
+    it('create anoher task and have two', async () => {
         await create(testTask);
         expect((await findAll()).length).toBe(2);
     });
@@ -69,9 +69,3 @@ describe('typeCast:', () => {
         expect((await findAll()).length).toBe(0);
     });
 });
-
-function roundSeconds(date: Date): Date {
-    date.setMinutes(date.getMinutes() + Math.round(date.getSeconds() / 60));
-    date.setSeconds(0, 0);
-    return date;
-}

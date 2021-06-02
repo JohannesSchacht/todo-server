@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 
 export const setNamespace = (n: string) => (NAMESPACE = n);
+export const silencia = (b: boolean) => (silence = b);
 
+let silence = false;
 let NAMESPACE = '???';
 
 export const loggingHandler = (request: Request, response: Response, next: NextFunction) => {
@@ -19,6 +21,7 @@ export const loggingHandler = (request: Request, response: Response, next: NextF
 };
 
 const info = (namespace: string, message: string, object?: any) => {
+    if (silence) return;
     if (object) {
         console.info(`[${getTimeStamp()}] [INFO] [${namespace}] ${message}`, object);
     } else {
@@ -27,6 +30,7 @@ const info = (namespace: string, message: string, object?: any) => {
 };
 
 const warn = (namespace: string, message: string, object?: any) => {
+    if (silence) return;
     if (object) {
         console.warn(`[${getTimeStamp()}] [WARN] [${namespace}] ${message}`, object);
     } else {
@@ -35,6 +39,7 @@ const warn = (namespace: string, message: string, object?: any) => {
 };
 
 const error = (namespace: string, message: string, object?: any) => {
+    if (silence) return;
     if (object) {
         console.error(`[${getTimeStamp()}] [ERROR] [${namespace}] ${message}`, object);
     } else {
