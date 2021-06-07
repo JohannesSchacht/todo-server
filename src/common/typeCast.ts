@@ -17,7 +17,7 @@ export const typeCast = (
     const result = { ...masterObject };
 
     for (const key of Object.keys(newObject)) {
-        if (!(key in masterObject)) throw new Error(`${funcName}: ${key} -> not found`);
+        if (!(key in masterObject)) throw new Error(`${funcName}(${key}): not found`);
         // @ts-expect-error
         const masterType = typeof masterObject[key];
         // @ts-expect-error
@@ -29,7 +29,7 @@ export const typeCast = (
                 // @ts-expect-error
                 result[key] = converters[key](stringValue);
             } catch (e) {
-                throw new Error(`${funcName}:${key}: "${stringValue}" -> ${e.message}`);
+                throw new Error(`${funcName}(${key}) "${stringValue}" -> ${e.message}`);
             }
             continue;
         }
@@ -40,14 +40,14 @@ export const typeCast = (
             case 'number':
                 newValue = parseInt(stringValue, 10);
                 if (isNaN(stringValue))
-                    throw new Error(`${funcName}:${key}: "${stringValue}" -> not a number`);
+                    throw new Error(`${funcName}(${key}): "${stringValue}" -> not a number`);
                 break;
             case 'boolean':
                 newValue = stringValue === 'true';
                 break;
             default:
                 throw new Error(
-                    `${funcName}: ${key}:${stringValue} -> type \'${masterType}\' not supported`
+                    `${funcName}(${key}): "${stringValue}" -> type "${masterType}" not supported`
                 );
         }
         // @ts-expect-error
