@@ -1,8 +1,8 @@
 export interface BaseTask {
-    name: string;
-    description: string;
-    dueDate: Date;
-    user: number;
+    name?: string;
+    description?: string;
+    dueDate?: Date;
+    user?: number;
 }
 
 export interface Task extends BaseTask {

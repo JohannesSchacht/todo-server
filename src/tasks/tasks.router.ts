@@ -60,11 +60,9 @@ tasksRouter.put('/:id', async (req: Request, res: Response) => {
         if (existingTask) {
             const updatedTask = await TaskService.update(id, taskUpdate);
             return res.status(200).json(updatedTask);
-        }
-        const newTask = await TaskService.create(taskUpdate);
-        res.status(201).json(newTask);
+        } else return res.status(404);
     } catch (e) {
-        res.status(500).send(e.message);
+        res.status(e instanceof TypeError ? 400 : 500).send(e.message);
     }
 });
 

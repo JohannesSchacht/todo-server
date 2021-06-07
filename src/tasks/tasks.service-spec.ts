@@ -1,8 +1,8 @@
 import { find, findAll, create, update, remove, clear, taskDatabaseSize } from './tasks.service';
-import { Task, roundSeconds } from './task.interface';
+import { Task, roundSeconds, BaseTask } from './task.interface';
 
-describe('typeCast:', () => {
-    const testTask = {
+describe('task.services:', () => {
+    const testTask: BaseTask = {
         name: 'Build Todo API',
         description: 'Use Swagger, Postman and Express',
         dueDate: roundSeconds(new Date('2021-05-24T10:51:16.432Z')),
@@ -13,16 +13,17 @@ describe('typeCast:', () => {
     jasmineConfiguration.random = false;
     jasmine.getEnv().configure(jasmineConfiguration);
 
-    it('Initial task list should be empty', async () => {
-        const tasks = await findAll();
-        expect(tasks.length).toBe(0);
+    it('start with empty task list', async () => {
+        await clear();
+        expect((await findAll()).length).toBe(0);
     });
 
     it('ensure creating one task works', async () => {
         const task: Task = await create(testTask);
+        expect((await findAll()).length).toBe(1);
         // @ts-expect-error
         delete task.id;
-        expect(JSON.stringify(task)).toBe(JSON.stringify(testTask));
+        expect(task as BaseTask).toEqual(testTask);
     });
 
     it('create anoher task and have two', async () => {
@@ -31,8 +32,11 @@ describe('typeCast:', () => {
     });
 
     it(`expect ${taskDatabaseSize} tasks to be the limit`, async () => {
+        // Fill data base to limit
         clear();
         for (let i = 0; i < taskDatabaseSize; i++) await create(testTask);
+
+        // Try to add one more
         let err = false;
         try {
             await create(testTask);
@@ -45,19 +49,30 @@ describe('typeCast:', () => {
 
     it('find and update a task', async () => {
         const allTasks: Task[] = await findAll();
-        expect(JSON.stringify(allTasks[0]) === JSON.stringify(allTasks[1])).toBeFalse();
+        expect(allTasks[0]).not.toEqual(allTasks[1]);
         let task = allTasks[1];
         let id = task.id;
-        expect(JSON.stringify(task) === JSON.stringify(allTasks[1])).toBeTrue();
+        expect(task as BaseTask).toEqual(allTasks[1]);
         task = await find(id);
-        expect(JSON.stringify(task) === JSON.stringify(allTasks[1])).toBeTrue();
+        expect(task as BaseTask).toEqual(allTasks[1]);
+
         task.name = 'Some other name';
         // @ts-expect-error
         delete task.id;
-        update(id, task);
+        await update(id, task);
         task.id = id;
         let task1: Task = await find(id);
-        expect(JSON.stringify(task) === JSON.stringify(task1)).toBeTrue();
+        expect(task as BaseTask).toEqual(task1);
+    });
+
+    it('error on find(wrong id)', async () => {
+        let errType: Error | undefined = undefined;
+        try {
+            await find(-1);
+        } catch (e) {
+            errType = e;
+        }
+        expect(errType).toBeInstanceOf(ReferenceError);
     });
 
     it('delete and clear', async () => {
@@ -67,5 +82,72 @@ describe('typeCast:', () => {
         expect((await findAll()).length).toBe(cnt - 1);
         await clear();
         expect((await findAll()).length).toBe(0);
+    });
+
+    it('expect error on illegal post', async () => {
+        await clear();
+        const illegalTask: BaseTask = {};
+        // @ts-expect-error
+        illegalTask['something'] = 'is illegal';
+
+        let errType: Error | undefined = undefined;
+        try {
+            await create(illegalTask);
+        } catch (e) {
+            errType = e;
+        }
+        expect(errType).toBeInstanceOf(TypeError);
+
+        // @ts-expect-error
+        delete illegalTask.something;
+        // @ts-expect-error
+        illegalTask.dueDate = 'not a date';
+
+        errType = undefined;
+        try {
+            await create(illegalTask);
+        } catch (e) {
+            errType = e;
+        }
+        expect(errType).toBeInstanceOf(TypeError);
+
+        expect((await findAll()).length).toBe(0);
+    });
+
+    it('expect error on illegal update', async () => {
+        const task: Task = await create(testTask);
+
+        let errType: Error | undefined = undefined;
+        try {
+            await update(task.id + 1, testTask);
+        } catch (e) {
+            errType = e;
+        }
+        expect(errType).toBeInstanceOf(ReferenceError);
+
+        const illegalTask: BaseTask = {};
+        // @ts-expect-error
+        illegalTask['something'] = 'is illegal';
+
+        errType = undefined;
+        try {
+            await update(task.id, illegalTask);
+        } catch (e) {
+            errType = e;
+        }
+        expect(errType).toBeInstanceOf(TypeError);
+
+        // @ts-expect-error
+        delete illegalTask.something;
+        // @ts-expect-error
+        illegalTask.dueDate = 'not a date';
+
+        errType = undefined;
+        try {
+            await update(task.id, illegalTask);
+        } catch (e) {
+            errType = e;
+        }
+        expect(errType).toBeInstanceOf(TypeError);
     });
 });

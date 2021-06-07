@@ -9,7 +9,10 @@ let tasks: Tasks = {};
 // Service Methods
 export const findAll = async (): Promise<Task[]> => Object.values(tasks);
 
-export const find = async (id: number): Promise<Task> => tasks[id];
+export const find = async (id: number): Promise<Task> => {
+    if (tasks[id]) return tasks[id];
+    else throw new ReferenceError(`id: ${id} not found`);
+};
 
 export const taskDatabaseSize = 100;
 let count = 0;
@@ -33,10 +36,16 @@ export const create = async (newTask: BaseTask): Promise<Task> => {
 export const update = async (id: number, taskupdate: BaseTask): Promise<Task | null> => {
     const task = await find(id);
 
-    if (!task) {
-        return null;
+    try {
+        tasks[id] = {
+            id,
+            ...(typeCast(getDefaultTask(), taskupdate, {
+                dueDate: typeCastConverter_Date
+            }) as BaseTask)
+        };
+    } catch (e) {
+        throw new TypeError(e.message);
     }
-    tasks[id] = { id, ...taskupdate };
     return tasks[id];
 };
 

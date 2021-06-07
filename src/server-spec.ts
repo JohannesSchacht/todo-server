@@ -8,7 +8,7 @@ import { typeCast, typeCastConverter_Date } from './common/typeCast';
 setNamespace('Jasmine');
 silencia(true);
 
-const testTask = {
+const testTask: BaseTask = {
     name: 'Build Todo API',
     description: 'Use Swagger, Postman and Express',
     dueDate: roundSeconds(new Date('2021-05-24T10:51:16.432Z')),
@@ -44,7 +44,12 @@ describe('todo list: tasks', () => {
         let response = await instancePost(instance, '/tasks', testTask);
         expect(response.status).toBe(201);
         delete response.data.id;
-        expect(JSON.stringify(response.data)).toBe(JSON.stringify(testTask));
+        const result = {
+            ...(typeCast(getDefaultTask(), response.data, {
+                dueDate: typeCastConverter_Date
+            }) as BaseTask)
+        };
+        expect(result).toEqual(testTask);
         response = await instanceGet(instance, '/tasks');
         expect(response.data.length).toBe(1);
     });
@@ -58,7 +63,9 @@ describe('todo list: tasks', () => {
                 dueDate: typeCastConverter_Date
             }) as BaseTask)
         };
-        expect(JSON.stringify(result)).toBe(JSON.stringify(getDefaultTask()));
+        expect(result).toEqual(getDefaultTask());
+        response = await instanceGet(instance, '/tasks');
+        expect(response.data.length).toBe(2);
     });
 
     it('Post illegal data', async () => {
