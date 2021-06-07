@@ -86,9 +86,8 @@ describe('task.services:', () => {
 
     it('expect error on illegal post', async () => {
         await clear();
-        const illegalTask: BaseTask = {};
         // @ts-expect-error
-        illegalTask['something'] = 'is illegal';
+        const illegalTask: BaseTask = { something: 'is illegal' };
 
         let errType: Error | undefined = undefined;
         try {
@@ -99,9 +98,7 @@ describe('task.services:', () => {
         expect(errType).toBeInstanceOf(TypeError);
 
         // @ts-expect-error
-        delete illegalTask.something;
-        // @ts-expect-error
-        illegalTask.dueDate = 'not a date';
+        let illegalTask: BaseTask = { dueDate: 'not a date' };
 
         errType = undefined;
         try {
@@ -125,9 +122,8 @@ describe('task.services:', () => {
         }
         expect(errType).toBeInstanceOf(ReferenceError);
 
-        const illegalTask: BaseTask = {};
         // @ts-expect-error
-        illegalTask['something'] = 'is illegal';
+        let illegalTask: BaseTask = { something: 'is illegal' };
 
         errType = undefined;
         try {
@@ -138,9 +134,7 @@ describe('task.services:', () => {
         expect(errType).toBeInstanceOf(TypeError);
 
         // @ts-expect-error
-        delete illegalTask.something;
-        // @ts-expect-error
-        illegalTask.dueDate = 'not a date';
+        let illegalTask: BaseTask = { dueDate: 'not a date' };
 
         errType = undefined;
         try {

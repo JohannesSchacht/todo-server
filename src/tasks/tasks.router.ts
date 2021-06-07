@@ -13,6 +13,9 @@ export const tasksRouter = express.Router();
 /**
  * Controller Definitions
  */
+tasksRouter.param('id', (req: Request, res: Response, next) => {
+    next();
+});
 
 // GET tasks
 tasksRouter.get('/', async (req: Request, res: Response) => {
@@ -26,16 +29,12 @@ tasksRouter.get('/', async (req: Request, res: Response) => {
 
 // GET tasks/:id
 tasksRouter.get('/:id', async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id, 10);
-
     try {
+        const id: number = parseInt(req.params.id, 10);
         const task: Task = await TaskService.find(id);
-        if (task) {
-            return res.status(200).send(task);
-        }
-        res.status(404).send('task not found');
+        return res.status(200).send(task);
     } catch (e) {
-        res.status(500).send(e.message);
+        res.status(e instanceof ReferenceError ? 404 : 500).send(e.message);
     }
 });
 
@@ -52,17 +51,15 @@ tasksRouter.post('/', async (req: Request, res: Response) => {
 
 // PUT tasks/:id
 tasksRouter.put('/:id', async (req: Request, res: Response) => {
-    const id: number = parseInt(req.params.id, 10);
-
     try {
-        const taskUpdate: Task = req.body;
-        const existingTask: Task = await TaskService.find(id);
-        if (existingTask) {
-            const updatedTask = await TaskService.update(id, taskUpdate);
-            return res.status(200).json(updatedTask);
-        } else return res.status(404);
+        const id: number = parseInt(req.params.id, 10);
+        const updatedTask = await TaskService.update(id, req.body);
+        return res.status(200).json(updatedTask);
     } catch (e) {
-        res.status(e instanceof TypeError ? 400 : 500).send(e.message);
+        let returnCode = 500;
+        if (e instanceof ReferenceError) returnCode = 404;
+        if (e instanceof TypeError) returnCode = 400;
+        return res.status(returnCode).send(e.message);
     }
 });
 
@@ -73,6 +70,6 @@ tasksRouter.delete('/:id', async (req: Request, res: Response) => {
         await TaskService.remove(id);
         res.sendStatus(204);
     } catch (e) {
-        res.status(500).send(e.message);
+        res.status(e instanceof ReferenceError ? 404 : 500).send(e.message);
     }
 });
