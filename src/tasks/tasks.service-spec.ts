@@ -21,9 +21,8 @@ describe('task.services:', () => {
     it('ensure creating one task works', async () => {
         const task: Task = await create(testTask);
         expect((await findAll()).length).toBe(1);
-        // @ts-expect-error
-        delete task.id;
-        expect(task as BaseTask).toEqual(testTask);
+        const tt: Task = { id: task.id, ...testTask };
+        expect(task as BaseTask).toEqual(tt);
     });
 
     it('create anoher task and have two', async () => {
@@ -51,18 +50,17 @@ describe('task.services:', () => {
         const allTasks: Task[] = await findAll();
         expect(allTasks[0]).not.toEqual(allTasks[1]);
         let task = allTasks[1];
-        let id = task.id;
+        let currId = task.id;
         expect(task as BaseTask).toEqual(allTasks[1]);
-        task = await find(id);
+        task = await find(currId);
         expect(task as BaseTask).toEqual(allTasks[1]);
 
-        task.name = 'Some other name';
-        // @ts-expect-error
-        delete task.id;
-        await update(id, task);
-        task.id = id;
-        let task1: Task = await find(id);
-        expect(task as BaseTask).toEqual(task1);
+        const { id, ...newTask } = { ...task, name: 'Some other name' };
+        let updatedTask: Task = (await update(currId, newTask)) as Task;
+        const tt: Task = { id: currId, ...newTask };
+        expect(tt).toEqual(updatedTask);
+        updatedTask = await find(currId);
+        expect(tt).toEqual(updatedTask);
     });
 
     it('error on find(wrong id)', async () => {

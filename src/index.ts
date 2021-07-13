@@ -4,10 +4,7 @@ import http from 'http';
 
 setNamespace('server');
 
+process.on('uncaughtException', (msg) => console.error(`uncaught exception: ${msg}`));
+
 const httpServer = http.createServer(app);
-try {
-    httpServer.listen(PORT, HOSTNAME, () => console.log(`Server is running ${HOSTNAME}:${PORT}`));
-} catch (e) {
-    console.log(`unexpected server termination: ${e.message}`);
-}
-console.log(`regular server termination`);
+httpServer.listen(PORT, HOSTNAME, () => console.log(`Server is running -> ${HOSTNAME}:${PORT}`));

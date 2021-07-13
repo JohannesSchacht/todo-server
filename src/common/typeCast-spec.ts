@@ -112,7 +112,7 @@ describe('typeCast: object type conversion', () => {
             expect(err).toBe(test.error);
             if (test.error) {
                 expect(errMsg.length > 0).toBeTrue();
-                expect(errMsg.startsWith('typeCast:')).toBeTrue();
+                expect(errMsg.startsWith('typeCast(')).toBeTrue();
             }
         });
     }

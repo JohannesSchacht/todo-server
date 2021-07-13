@@ -10,25 +10,30 @@ import { BaseTask, Task } from './task.interface';
  */
 export const tasksRouter = express.Router();
 
-/**
- * Controller Definitions
- */
-tasksRouter.param('id', (req: Request, res: Response, next) => {
-    next();
-});
+tasksRouter.param('id', paramId);
+tasksRouter.get('/', findAll);
+tasksRouter.get('/:id', find);
+tasksRouter.post('/', create);
+tasksRouter.put('/:id', update);
+tasksRouter.delete('/:id', remove);
 
-// GET tasks
-tasksRouter.get('/', async (req: Request, res: Response) => {
+/**
+ * Router Implementation
+ */
+function paramId(req: Request, res: Response, next: () => void) {
+    next();
+}
+
+async function findAll(req: Request, res: Response) {
     try {
         const tasks: Task[] = await TaskService.findAll();
         res.status(200).send(tasks);
     } catch (e) {
         res.status(500).send(e.message);
     }
-});
+}
 
-// GET tasks/:id
-tasksRouter.get('/:id', async (req: Request, res: Response) => {
+async function find(req: Request, res: Response) {
     try {
         const id: number = parseInt(req.params.id, 10);
         const task: Task = await TaskService.find(id);
@@ -36,10 +41,9 @@ tasksRouter.get('/:id', async (req: Request, res: Response) => {
     } catch (e) {
         res.status(e instanceof ReferenceError ? 404 : 500).send(e.message);
     }
-});
+}
 
-// POST tasks
-tasksRouter.post('/', async (req: Request, res: Response) => {
+async function create(req: Request, res: Response) {
     try {
         const task: BaseTask = req.body;
         const newTask = await TaskService.create(task);
@@ -47,10 +51,9 @@ tasksRouter.post('/', async (req: Request, res: Response) => {
     } catch (e) {
         res.status(e instanceof TypeError ? 400 : 500).send(e.message);
     }
-});
+}
 
-// PUT tasks/:id
-tasksRouter.put('/:id', async (req: Request, res: Response) => {
+async function update(req: Request, res: Response) {
     try {
         const id: number = parseInt(req.params.id, 10);
         const updatedTask = await TaskService.update(id, req.body);
@@ -61,10 +64,9 @@ tasksRouter.put('/:id', async (req: Request, res: Response) => {
         if (e instanceof TypeError) returnCode = 400;
         return res.status(returnCode).send(e.message);
     }
-});
+}
 
-// DELETE tasks/:id
-tasksRouter.delete('/:id', async (req: Request, res: Response) => {
+async function remove(req: Request, res: Response) {
     try {
         const id: number = parseInt(req.params.id, 10);
         await TaskService.remove(id);
@@ -72,4 +74,4 @@ tasksRouter.delete('/:id', async (req: Request, res: Response) => {
     } catch (e) {
         res.status(e instanceof ReferenceError ? 404 : 500).send(e.message);
     }
-});
+}
