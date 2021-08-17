@@ -3,7 +3,7 @@ import { setNamespace } from './middleware/logging.middelware';
 import http from 'http';
 
 setNamespace('server');
-const version = process.env.SERVER_HOSTNAME;
+const version = '1.0.1';
 
 process.on('uncaughtException', (msg) => console.error(`uncaught exception: ${msg}`));
 
