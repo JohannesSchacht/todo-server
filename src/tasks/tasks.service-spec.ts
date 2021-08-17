@@ -57,10 +57,15 @@ describe('task.services:', () => {
 
         const { id, ...newTask } = { ...task, name: 'Some other name' };
         let updatedTask: Task = (await update(currId, newTask)) as Task;
-        const tt: Task = { id: currId, ...newTask };
-        expect(tt).toEqual(updatedTask);
+        let expectedResult: Task = { id: currId, ...newTask };
+        expect(expectedResult).toEqual(updatedTask);
         updatedTask = await find(currId);
-        expect(tt).toEqual(updatedTask);
+        expect(expectedResult).toEqual(updatedTask);
+
+        const updateTask = { description: 'new description' };
+        updatedTask = (await update(currId, updateTask)) as Task;
+        expectedResult = { ...expectedResult, ...updateTask };
+        expect(expectedResult).toEqual(updatedTask);
     });
 
     it('error on find(wrong id)', async () => {

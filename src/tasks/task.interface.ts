@@ -5,6 +5,8 @@ export interface BaseTask {
     user: number;
 }
 
+export type UpdateTask = Partial<BaseTask>;
+
 export interface Task extends BaseTask {
     id: number;
 }

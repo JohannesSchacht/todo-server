@@ -1,7 +1,7 @@
 import { typeCast, typeCastConverter_Date } from '../common/typeCast';
 
 // Data Model Interfaces
-import { BaseTask, Task, getDefaultTask } from './task.interface';
+import { BaseTask, Task, getDefaultTask, UpdateTask } from './task.interface';
 import { Tasks } from './tasks.interface';
 
 let tasks: Tasks = {};
@@ -33,13 +33,13 @@ export const create = async (newTask: BaseTask): Promise<Task> => {
     return tasks[id];
 };
 
-export const update = async (id: number, taskupdate: BaseTask): Promise<Task | null> => {
+export const update = async (id: number, taskupdate: UpdateTask): Promise<Task | null> => {
     const task = await find(id);
 
     try {
         tasks[id] = {
             id,
-            ...(typeCast(getDefaultTask(), taskupdate, {
+            ...(typeCast(tasks[id], taskupdate, {
                 dueDate: typeCastConverter_Date
             }) as BaseTask)
         };
